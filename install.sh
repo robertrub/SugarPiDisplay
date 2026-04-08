@@ -20,18 +20,16 @@ if ! grep -q "BCM2" /proc/cpuinfo; then
     echo -e "${YELLOW}Warning: This does not appear to be a Raspberry Pi${NC}"
 fi
 
-# Install system dependencies for latest Raspbian
+# Install system dependencies for latest Raspbian (Bookworm-compatible)
 echo -e "${GREEN}Installing system dependencies...${NC}"
 sudo apt-get update
 sudo apt-get install -y \
     python3-pip \
     python3-venv \
     python3-dev \
-    python3-pillow \
     git \
     build-essential \
-    gpiod \
-    libgpiod-dev
+    gpiod
 
 # Navigate to project directory
 PROJECT_DIR="${HOME}/SugarPiDisplay"
@@ -52,7 +50,17 @@ fi
 echo -e "${GREEN}Installing Python dependencies...${NC}"
 source venv/bin/activate
 pip install --upgrade pip setuptools wheel
-pip install -r requirements.txt
+
+# Install dependencies individually with better error handling
+echo -e "${GREEN}Installing required Python packages...${NC}"
+pip install --no-cache-dir Flask>=2.3.0
+pip install --no-cache-dir Flask-WTF>=1.1.0
+pip install --no-cache-dir Pillow>=10.0.0
+pip install --no-cache-dir requests>=2.31.0
+pip install --no-cache-dir Werkzeug>=2.3.0
+pip install --no-cache-dir spidev>=3.6
+pip install --no-cache-dir RPi.GPIO>=0.7.0
+pip install --no-cache-dir gpiozero>=2.0.0
 
 # Set up GPIO and SPI permissions for non-root access
 echo -e "${GREEN}Configuring GPIO and SPI access...${NC}"
