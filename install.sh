@@ -27,14 +27,11 @@ sudo apt-get install -y \
     python3-pip \
     python3-venv \
     python3-dev \
-    libopenjp2-7 \
-    libtiff6 \
-    libharfbuzz0b \
-    libwebp6 \
-    libatlas-base-dev \
+    python3-pillow \
     git \
     build-essential \
-    gpiod
+    gpiod \
+    libgpiod-dev
 
 # Navigate to project directory
 PROJECT_DIR="${HOME}/SugarPiDisplay"
@@ -59,12 +56,16 @@ pip install -r requirements.txt
 
 # Set up GPIO and SPI permissions for non-root access
 echo -e "${GREEN}Configuring GPIO and SPI access...${NC}"
-sudo usermod -aG gpio "$USER"
-sudo usermod -aG spi "$USER"
+sudo usermod -aG gpio "$USER" 2>/dev/null || true
+sudo usermod -aG spi "$USER" 2>/dev/null || true
 
 # Enable SPI interface if not already enabled
 echo -e "${GREEN}Enabling SPI interface...${NC}"
-sudo raspi-config nonint do_spi 0 2>/dev/null || echo "SPI already enabled or raspi-config unavailable"
+if command -v raspi-config &> /dev/null; then
+    sudo raspi-config nonint do_spi 0 2>/dev/null || echo "SPI configuration skipped"
+else
+    echo "raspi-config not found, please enable SPI manually if needed"
+fi
 
 # Create systemd service file
 echo -e "${GREEN}Setting up systemd service...${NC}"
