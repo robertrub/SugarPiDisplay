@@ -111,35 +111,53 @@ class EpaperDisplay:
             self.__allPanels.extend([self.__bgPanel, self.__agePanel, self.__trendPanel])
 
     def __drawScreen(self):
-        if (not self.__dirty):
-            return
-        self.__dirty = False
-        if self.__screenMode == "egv":
-            self.__wipeImage(self.__hGlucoseModeImage)
+    if (not self.__dirty):
+        return
+    self.__dirty = False
+    if self.__screenMode == "egv":
+        self.__wipeImage(self.__hGlucoseModeImage)
+        self.__hGlucoseModeImage.paste(
+            self.__bgPanel.image, self.__bgPanel.xy)
+        self.__hGlucoseModeImage.paste(
+            self.__agePanel.image, self.__agePanel.xy)
+        self.__hGlucoseModeImage.paste(
+            self.__trendPanel.image, self.__trendPanel.xy)
+        if self.__config[Cfg.show_graph]:
             self.__hGlucoseModeImage.paste(
-                self.__bgPanel.image, self.__bgPanel.xy)
-            self.__hGlucoseModeImage.paste(
-                self.__agePanel.image, self.__agePanel.xy)
-            self.__hGlucoseModeImage.paste(
-                self.__trendPanel.image, self.__trendPanel.xy)
-            if self.__config[Cfg.show_graph]:
-                self.__hGlucoseModeImage.paste(
-                    self.__graphPanel.image, self.__graphPanel.xy)
+                self.__graphPanel.image, self.__graphPanel.xy)
 
-            rotatedImg = self.__hGlucoseModeImage.rotate(180 * (1 if self.__config[Cfg.orientation] in [90,180] else 0))
-            self.__epd.init()
-            self.__epd.display(self.__epd.getbuffer(rotatedImg))
-            self.__epd.sleep()
+        # Apply rotation based on configuration
+        rotation_angle = 0
+        if self.__config[Cfg.orientation] == 90:
+            rotation_angle = 270
+        elif self.__config[Cfg.orientation] == 180:
+            rotation_angle = 180
+        elif self.__config[Cfg.orientation] == 270:
+            rotation_angle = 90
+        
+        rotatedImg = self.__hGlucoseModeImage.rotate(rotation_angle, expand=False)
+        self.__epd.init()
+        self.__epd.display(self.__epd.getbuffer(rotatedImg))
+        self.__epd.sleep()
 
-        if self.__screenMode == "text":
-            self.__wipeImage(self.__hTextModeImage)
-            self.__hTextModeImage.paste(
-                self.__bannerPanel.image, self.__bannerPanel.xy)
+    if self.__screenMode == "text":
+        self.__wipeImage(self.__hTextModeImage)
+        self.__hTextModeImage.paste(
+            self.__bannerPanel.image, self.__bannerPanel.xy)
 
-            rotatedImg = self.__hTextModeImage.rotate(180 * (1 if self.__config[Cfg.orientation]==90 else 0))
-            self.__epd.init()
-            self.__epd.display(self.__epd.getbuffer(rotatedImg))
-            self.__epd.sleep()
+        # Apply rotation for text mode
+        rotation_angle = 0
+        if self.__config[Cfg.orientation] == 90:
+            rotation_angle = 270
+        elif self.__config[Cfg.orientation] == 180:
+            rotation_angle = 180
+        elif self.__config[Cfg.orientation] == 270:
+            rotation_angle = 90
+        
+        rotatedImg = self.__hTextModeImage.rotate(rotation_angle, expand=False)
+        self.__epd.init()
+        self.__epd.display(self.__epd.getbuffer(rotatedImg))
+        self.__epd.sleep()
 
     def __wipeImage(self, img):
         if (img is None):
