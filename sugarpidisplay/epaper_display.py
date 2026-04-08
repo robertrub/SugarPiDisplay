@@ -231,9 +231,22 @@ class EpaperDisplay:
                          fill=0, width=2)
 
     def __drawText(self, draw, xy, text, font):
-        offset = font.getoffset(text)
-        textSize = draw.textsize(text, font=font)
-        textSize = (textSize[0] - offset[0], textSize[1] - offset[1])
+        # Pillow 10.0+ compatibility: handle both old and new APIs
+        try:
+            # Try newer Pillow API (10.0+)
+            bbox = draw.textbbox((0, 0), text, font=font)
+            offset = (bbox[0], bbox[1])
+            textSize = (bbox[2] - bbox[0], bbox[3] - bbox[1])
+        except (AttributeError, TypeError):
+            # Fallback for older Pillow versions
+            try:
+                offset = font.getoffset(text)
+            except AttributeError:
+                offset = (0, 0)
+            textSize = draw.textsize(text, font=font)
+            if len(textSize) >= 2 and len(offset) >= 2:
+                textSize = (textSize[0] - offset[0], textSize[1] - offset[1])
+        
         draw.text((xy[0]-offset[0], xy[1]-offset[1]), text, font=font, fill=0)
         return textSize
 
