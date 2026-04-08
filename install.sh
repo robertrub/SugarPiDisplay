@@ -29,7 +29,9 @@ sudo apt-get install -y \
     libopenjp2-7 \
     libjpeg62-turbo \
     libtiff6 \
-    libwebp7
+    libwebp7 \
+    libfreetype6 \
+    zlib1g
 
 PROJECT_DIR="${HOME}/SugarPiDisplay"
 if [ ! -d "$PROJECT_DIR" ]; then
@@ -96,38 +98,4 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=$PROJECT_DIR/network-check.sh
-StandardOutput=journal
-StandardError=journal
-EOF
-
-sudo tee /etc/systemd/system/sugarpidisplay-network-check.timer > /dev/null <<EOF
-[Unit]
-Description=Run SugarPi Network Check Every 5 Minutes
-Requires=sugarpidisplay-network-check.service
-
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
-AccuracySec=1s
-
-[Install]
-WantedBy=timers.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable sugarpidisplay.service
-sudo systemctl enable sugarpidisplay-network-check.timer
-
-echo -e "${GREEN}Installation complete!${NC}"
-echo ""
-echo -e "${YELLOW}Next steps:${NC}"
-echo "1. Log out and log back in for GPIO/SPI permissions:"
-echo "   exit"
-echo "2. Start the service:"
-echo "   sudo systemctl start sugarpidisplay.service"
-echo "3. Check status:"
-echo "   sudo systemctl status sugarpidisplay.service"
-echo "4. View logs:"
-echo "   sudo journalctl -u sugarpidisplay.service -f"
-echo "5. Access web interface at http://<your-pi-ip>:8080"
+ExecStart=$PROJECT_DIR/network
