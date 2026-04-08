@@ -1,31 +1,115 @@
 # SugarPiDisplay
 
-Display your CGM data on an e-Paper display anywhere in your home or office.
+Display your CGM (Continuous Glucose Monitor) data on an e-Paper display anywhere in your home or office.
 
-![SugarPiDisplay](https://raw.githubusercontent.com/bassettb/SugarPiDisplay/master/docs/image2.jpg) .... ![SugarPiDisplay](https://raw.githubusercontent.com/bassettb/SugarPiDisplay/master/docs/image3.jpg)
+![SugarPiDisplay](https://raw.githubusercontent.com/bassettb/SugarPiDisplay/master/docs/image2.jpg)
 
 ## Features
-- Connects to either Dexcom Share or Nightscout
-- Shows latest glucose reading, trend arrow, time of last refresh, and a graph of the last hour
-- Around $50 in parts
-- Pi board and e-paper are the same dimensions and create a single, compact device
-- Includes step-by-step instructions for setting up the hardware and software
-- Easy web interface for configuring access to your Dexcom or Nightscout data
+
+- **Nightscout Integration**: Read glucose data from your Nightscout instance
+- **Dexcom Support**: Connect to Dexcom Share accounts
+- **Beautiful Display**: Shows glucose level, trend arrow, time of last reading, and optional graph
+- **Web Configuration**: Easy-to-use web interface for setup and settings
+- **Low Power**: Optimized for Raspberry Pi Zero W
+- **Automatic Startup**: Configured to run at boot via systemd
+- **Real-time Updates**: Checks for new glucose readings every 5 minutes
 
 ## Hardware
-- Raspberry Pi Zero W with soldered pin headers
-- 4GB (or larger) micro SDCard
-- Waveshare 2.13in e-paper display
 
-## Config Interface
-Simple web interface for configuring the data source:
+- Raspberry Pi Zero W with soldered headers (or Pi Zero 2 W)
+- Waveshare 2.13" e-Paper Display (V2 or V3)
+- 4GB+ microSD card
+- 5V power supply
 
-![Config screen](https://raw.githubusercontent.com/bassettb/SugarPiDisplay/master/docs/ConfigScreenshot1.png)
+## Recent Updates (Latest Raspbian Support)
 
-## Setup Instructions
+This version has been updated for **Raspbian Bookworm** with:
+- ✅ Modern systemd service management (replaces init.d)
+- ✅ Python virtual environment support
+- ✅ Updated dependencies for Python 3.8+
+- ✅ Improved GPIO permission handling
+- ✅ Enhanced logging with journalctl
+- ✅ Network health monitoring
 
-- [Hardware](https://github.com/bassettb/SugarPiDisplay/blob/master/docs/hardware_setup.md)
-- [Software](https://github.com/bassettb/SugarPiDisplay/blob/master/docs/software_setup.md)
+## Quick Start
+
+### 1. Clone Repository
+
+```bash
+cd ~
+git clone https://github.com/robertrub/SugarPiDisplay.git
+cd SugarPiDisplay
+```
+
+### 2. Run Installation
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+### 3. Configure
+
+After installation:
+```bash
+exit  # Log out to apply permissions
+# Log back in
+sudo systemctl start sugarpidisplay.service
+# Access http://<your-pi-ip>:8080 to configure
+```
+
+## Documentation
+
+- **[Installation Guide](INSTALL.md)** - Detailed setup instructions
+- **[Hardware Setup](docs/hardware_setup.md)** - Physical assembly guide
+- **[Software Setup](docs/software_setup.md)** - Software configuration
+
+## Configuration
+
+Access the web interface at `http://<your-pi-ip>:8080`
+
+Configure:
+- Data source (Nightscout or Dexcom)
+- API credentials
+- Display settings (orientation, units, time format)
+
+Configuration is saved to `~/.sugarpidisplay/config.json`
+
+## Service Commands
+
+```bash
+# Start service
+sudo systemctl start sugarpidisplay.service
+
+# Check status
+sudo systemctl status sugarpidisplay.service
+
+# View logs
+sudo journalctl -u sugarpidisplay.service -f
+
+# Stop service
+sudo systemctl stop sugarpidisplay.service
+
+# Disable autostart
+sudo systemctl disable sugarpidisplay.service
+```
+
+## Troubleshooting
+
+Check the [Installation Guide](INSTALL.md) troubleshooting section for common issues.
 
 ## License
-This code is licensed under the MIT license, see the [LICENSE file](https://github.com/bassettb/SugarPiDisplay/blob/master/LICENSE) or [tldrlegal](http://www.tldrlegal.com/license/mit-license) for more information.
+
+This code is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Credits
+
+Original project by [Bryan Bassett](https://github.com/bassettb/SugarPiDisplay)
+
+Maintained and updated for modern Raspbian versions.
+
+## Support
+
+- Check logs: `sudo journalctl -u sugarpidisplay.service -f`
+- Review config: `cat ~/.sugarpidisplay/config.json`
+- GitHub Issues: [Report a problem](https://github.com/robertrub/SugarPiDisplay/issues)
