@@ -50,7 +50,6 @@ class EpaperDisplay:
 
     def open(self):
         self.__epd = epd2in13.EPD()
-        #self.__create_custom_chars()
         return True
 
     def close(self):
@@ -66,7 +65,7 @@ class EpaperDisplay:
         self.__fontAge = ImageFont.truetype(fontPath, 22)
         self.__fontTime = ImageFont.truetype(fontPath, 18)
         # Blood glucose display screen
-        if self.__config[Cfg.orientation] in [0,180]:
+        if self.__config[Cfg.orientation] in [0, 180]:
             self.__hGlucoseModeImage = Image.new(
                 '1', (EPD_WIDTH, EPD_HEIGHT), 255)   # Portrait 122x250
         else:
@@ -80,7 +79,7 @@ class EpaperDisplay:
             agePanelSize = (70, 52)
             trendPanelSize = (52, 52)
             graphPanelSize = (122, 122)
-            if self.__config[Cfg.orientation] in [0,180]:
+            if self.__config[Cfg.orientation] in [0, 180]:
                 self.__bgPanel = Panel((0, 0), bgPanelSize)
                 self.__agePanel = Panel((0, 70), agePanelSize)
                 self.__trendPanel = Panel((70, 70), trendPanelSize)
@@ -94,7 +93,7 @@ class EpaperDisplay:
         else:
             agePanelSize = (70, 45)
             trendPanelSize = (70, 70)
-            if self.__config[Cfg.orientation] in [0,180]:
+            if self.__config[Cfg.orientation] in [0, 180]:
                 self.__fontBG = ImageFont.truetype(fontPath, 76)
                 self.__fontBG2 = ImageFont.truetype(fontPath, 57)
                 bgPanelSize = (122, 70)
@@ -111,61 +110,41 @@ class EpaperDisplay:
             self.__allPanels.extend([self.__bgPanel, self.__agePanel, self.__trendPanel])
 
     def __drawScreen(self):
-    if (not self.__dirty):
-        return
-    self.__dirty = False
-    if self.__screenMode == "egv":
-        self.__wipeImage(self.__hGlucoseModeImage)
-        self.__hGlucoseModeImage.paste(
-            self.__bgPanel.image, self.__bgPanel.xy)
-        self.__hGlucoseModeImage.paste(
-            self.__agePanel.image, self.__agePanel.xy)
-        self.__hGlucoseModeImage.paste(
-            self.__trendPanel.image, self.__trendPanel.xy)
-        if self.__config[Cfg.show_graph]:
+        if (not self.__dirty):
+            return
+        self.__dirty = False
+        if self.__screenMode == "egv":
+            self.__wipeImage(self.__hGlucoseModeImage)
             self.__hGlucoseModeImage.paste(
-                self.__graphPanel.image, self.__graphPanel.xy)
+                self.__bgPanel.image, self.__bgPanel.xy)
+            self.__hGlucoseModeImage.paste(
+                self.__agePanel.image, self.__agePanel.xy)
+            self.__hGlucoseModeImage.paste(
+                self.__trendPanel.image, self.__trendPanel.xy)
+            if self.__config[Cfg.show_graph]:
+                self.__hGlucoseModeImage.paste(
+                    self.__graphPanel.image, self.__graphPanel.xy)
 
-        # Apply rotation based on configuration
-        rotation_angle = 0
-        if self.__config[Cfg.orientation] == 90:
-            rotation_angle = 270
-        elif self.__config[Cfg.orientation] == 180:
-            rotation_angle = 180
-        elif self.__config[Cfg.orientation] == 270:
-            rotation_angle = 90
-        
-        rotatedImg = self.__hGlucoseModeImage.rotate(rotation_angle, expand=False)
-        self.__epd.init()
-        self.__epd.display(self.__epd.getbuffer(rotatedImg))
-        self.__epd.sleep()
+            rotatedImg = self.__hGlucoseModeImage.rotate(180 * (1 if self.__config[Cfg.orientation] in [90, 180] else 0))
+            self.__epd.init()
+            self.__epd.display(self.__epd.getbuffer(rotatedImg))
+            self.__epd.sleep()
 
-    if self.__screenMode == "text":
-        self.__wipeImage(self.__hTextModeImage)
-        self.__hTextModeImage.paste(
-            self.__bannerPanel.image, self.__bannerPanel.xy)
+        if self.__screenMode == "text":
+            self.__wipeImage(self.__hTextModeImage)
+            self.__hTextModeImage.paste(
+                self.__bannerPanel.image, self.__bannerPanel.xy)
 
-        # Apply rotation for text mode
-        rotation_angle = 0
-        if self.__config[Cfg.orientation] == 90:
-            rotation_angle = 270
-        elif self.__config[Cfg.orientation] == 180:
-            rotation_angle = 180
-        elif self.__config[Cfg.orientation] == 270:
-            rotation_angle = 90
-        
-        rotatedImg = self.__hTextModeImage.rotate(rotation_angle, expand=False)
-        self.__epd.init()
-        self.__epd.display(self.__epd.getbuffer(rotatedImg))
-        self.__epd.sleep()
+            rotatedImg = self.__hTextModeImage.rotate(180 * (1 if self.__config[Cfg.orientation] == 90 else 0))
+            self.__epd.init()
+            self.__epd.display(self.__epd.getbuffer(rotatedImg))
+            self.__epd.sleep()
 
     def __wipeImage(self, img):
         if (img is None):
             return
         draw = ImageDraw.Draw(img)
         draw.rectangle(((0, 0), img.size), fill=(255))
-        # size = (img.size[0]-1, img.size[1]-1)
-        # draw.rectangle(((0,0), size), outline = (0), fill = (255) )
 
     def __wipePanel(self, panel):
         self.__wipeImage(panel.image)
@@ -211,7 +190,6 @@ class EpaperDisplay:
 
         self.__update_value(newScreenData.Value, newScreenData.IsStale)
         self.__update_trend(newScreenData.Trend)
-        #self.__update_age(newScreenData.ReadingTime, newScreenData.Age)
         self.__update_clock(newScreenData.UpdateTime)
         if self.__config[Cfg.show_graph]:
             self.__update_graph(readings)
@@ -225,7 +203,7 @@ class EpaperDisplay:
         self.__wipePanel(self.__bgPanel)
         drawBg = ImageDraw.Draw(self.__bgPanel.image)
         textXY = (5, 8)
-        textSize = (0,0)
+        textSize = (0, 0)
         if (value is None or not self.__config[Cfg.unit_mmol]):
             valStr = ""
             if (value is not None):
@@ -234,7 +212,7 @@ class EpaperDisplay:
             textSize = self.__drawText(drawBg, textXY, valStr, self.__fontBG)
 
         else:
-            valMmol = value/18
+            valMmol = value / 18
             valStr = "{:.1f}".format(valMmol)
             valStr = valStr.rjust(4)
 
@@ -244,12 +222,15 @@ class EpaperDisplay:
             textSize = (textIntSize[0] + gap + textDecSize[0], textIntSize[1])
 
         if (strikeThrough):
-            drawBg.line((textXY[0], textXY[1] + textSize[1]//2,
-                         textXY[0] + textSize[0], textXY[1] + textSize[1]//2),
+            drawBg.line((textXY[0], textXY[1] + textSize[1] // 2,
+                         textXY[0] + textSize[0], textXY[1] + textSize[1] // 2),
                          fill=0, width=2)
 
     def __drawText(self, draw, xy, text, font):
-        # Pillow 10.0+ compatibility: handle both old and new APIs
+        """
+        Draw text on the display with Pillow 10.0+ compatibility
+        Handles both old (getoffset) and new (textbbox) APIs
+        """
         try:
             # Try newer Pillow API (10.0+)
             bbox = draw.textbbox((0, 0), text, font=font)
@@ -259,13 +240,16 @@ class EpaperDisplay:
             # Fallback for older Pillow versions
             try:
                 offset = font.getoffset(text)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 offset = (0, 0)
-            textSize = draw.textsize(text, font=font)
-            if len(textSize) >= 2 and len(offset) >= 2:
+            
+            try:
+                textSize = draw.textsize(text, font=font)
                 textSize = (textSize[0] - offset[0], textSize[1] - offset[1])
+            except AttributeError:
+                textSize = (50, 20)  # Safe default
         
-        draw.text((xy[0]-offset[0], xy[1]-offset[1]), text, font=font, fill=0)
+        draw.text((xy[0] - offset[0], xy[1] - offset[1]), text, font=font, fill=0)
         return textSize
 
     def __update_trend(self, trend):
@@ -273,24 +257,6 @@ class EpaperDisplay:
         arrowImg = self.__get_trend_image(trend)
         if (arrowImg is not None):
             self.__trendPanel.image.paste(arrowImg, (0, 0))
-
-        # img = self.__trendPanel.image
-        # draw = ImageDraw.Draw(img)
-        # size = (img.size[0]-1, img.size[1]-1)
-        # draw.rectangle(((0,0), size), outline = (0), fill = (255) )
-
-    #def __update_age(self, timestamp, age):
-        #mins = (mins//2) * 2 # round to even number
-        # if (mins == self.__lastAge):
-        #     return
-        # self.__lastAge = mins
-        # ageStr = "now"
-        # if (mins > 0):
-        #     ageStr = str(mins) + "m"
-        # ageStr = ageStr.rjust(4)
-
-        # Get string in local time
-        # TODO - what I'm calling a timestamp is really a datetime.  need to rename
 
     def __update_clock(self, ts):
         atTime = ''
@@ -303,7 +269,6 @@ class EpaperDisplay:
 
         self.__wipePanel(self.__agePanel)
         draw = ImageDraw.Draw(self.__agePanel.image)
-        # self.__drawText(draw, (5,6), ageStr, self.__fontAge)
         self.__drawText(draw, (5, 12), atTime, self.__fontTime)
         self.__dirty = True
 
@@ -331,40 +296,35 @@ class EpaperDisplay:
         w = size[0]
         h = size[1]
         x2 = w - 1
-        #y2 = h - 1
-        # TODO - consider lw in the math below
         lw = 5
         self.__arrowImgSingle = Image.new('1', size, 255)
         draw = ImageDraw.Draw(self.__arrowImgSingle)
-        aw = w//4
-        ay = h//2
+        aw = w // 4
+        ay = h // 2
         draw.line((0, ay, x2, ay), fill=0, width=lw)
-        draw.line((x2 - aw, ay - 0.7*aw, x2, ay,  x2 -
-                   aw, ay + 0.7*aw), fill=0, width=lw)
+        draw.line((x2 - aw, ay - 0.7 * aw, x2, ay, x2 - aw, ay + 0.7 * aw), fill=0, width=lw)
 
         self.__arrowImgDouble = Image.new('1', size, 255)
         draw = ImageDraw.Draw(self.__arrowImgDouble)
-        aw = w//4
-        ay = h//2 - 0.8*aw
+        aw = w // 4
+        ay = h // 2 - 0.8 * aw
         draw.line((0, ay, x2, ay), fill=0, width=lw)
-        draw.line((x2 - aw, ay - 0.7*aw, x2, ay,  x2 -
-                   aw, ay + 0.7*aw), fill=0, width=lw)
-        ay = h//2 + 0.8*aw
+        draw.line((x2 - aw, ay - 0.7 * aw, x2, ay, x2 - aw, ay + 0.7 * aw), fill=0, width=lw)
+        ay = h // 2 + 0.8 * aw
         draw.line((0, ay, x2, ay), fill=0, width=lw)
-        draw.line((x2 - aw, ay - 0.7*aw, x2, ay,  x2 -
-                   aw, ay + 0.7*aw), fill=0, width=lw)
+        draw.line((x2 - aw, ay - 0.7 * aw, x2, ay, x2 - aw, ay + 0.7 * aw), fill=0, width=lw)
 
     def __goodRotate(self, img, degrees):
         w = img.size[0]
         h = img.size[1]
-        bigImg = Image.new('1', (w*3, h*3), 255)
+        bigImg = Image.new('1', (w * 3, h * 3), 255)
         bigImg.paste(img, (w, h))
         bitRotatedImg = bigImg.rotate(degrees)
-        return bitRotatedImg.crop((w, h, w+w, h+h))
+        return bitRotatedImg.crop((w, h, w + w, h + h))
 
     def __get_trend_image(self, trend):
         if(trend == Trend.NONE):
-            return None  # "**"
+            return None
         if(trend == Trend.DoubleUp):
             return self.__goodRotate(self.__arrowImgDouble, 90)
         if(trend == Trend.SingleUp):
@@ -380,10 +340,10 @@ class EpaperDisplay:
         if(trend == Trend.DoubleDown):
             return self.__goodRotate(self.__arrowImgDouble, -90)
         if(trend == Trend.NotComputable):
-            return None  # "NC"
+            return None
         if(trend == Trend.RateOutOfRange):
-            return None  # "HI"
-        return self.__arrowImgDouble.rotate(0)  # "??"
+            return None
+        return self.__arrowImgDouble.rotate(0)
 
 
 class Panel:
@@ -410,7 +370,6 @@ class ScreenData:
         self.UpdateTime = datetime.now(timezone.utc)
 
     def isDiff(self, other):
-        # exclude age, because it will increment every minute
         return (self.ReadingTime != other.ReadingTime or
                 self.Value != other.Value or
                 self.Trend != other.Trend or
