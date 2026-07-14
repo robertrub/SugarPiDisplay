@@ -21,7 +21,12 @@ class NightscoutReader():
         self.__logger = logger
 
     def set_config(self, config):
-        self.__config[Cfg.ns_url] = config[Cfg.ns_url]
+        # Strip trailing slash from URL if present
+        ns_url = config[Cfg.ns_url]
+        if ns_url.endswith('/'):
+            ns_url = ns_url[:-1]
+        
+        self.__config[Cfg.ns_url] = ns_url
         self.__config[Cfg.ns_token] = config[Cfg.ns_token]
         return True
 
