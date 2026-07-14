@@ -1,6 +1,7 @@
 import http.client
 import json
 import re
+import ssl
 from datetime import datetime, timezone
 
 from .trend import Trend
@@ -142,7 +143,10 @@ class NightscoutReader():
             return http.client.HTTPConnection(url)
         if (url.startswith('https://')):
             url = url[8:]
-            return http.client.HTTPSConnection(url)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            return http.client.HTTPSConnection(url, context=context)
         return http.client.HTTPConnection(url)
 
     def __translateTrend(self, trendStr):
