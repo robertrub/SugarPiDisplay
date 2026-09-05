@@ -95,12 +95,22 @@ def handle_submit(form):
     config[Cfg.orientation] = form.orientation.data
     config[Cfg.show_graph] = form.show_graph.data
     if (form.data_source.data == source_dexcom):
-        config[Cfg.dex_user] = form.dexcom_user.data
-        config[Cfg.dex_pass] = form.dexcom_pass.data
+        # Trim dexcom fields to avoid accidental whitespace
+        dex_user = form.dexcom_user.data or ''
+        dex_pass = form.dexcom_pass.data or ''
+        config[Cfg.dex_user] = dex_user.strip()
+        config[Cfg.dex_pass] = dex_pass.strip()
         config[Cfg.outside_us] = form.outside_us.data
     else:
-        config[Cfg.ns_url] = form.ns_url.data
-        config[Cfg.ns_token] = form.ns_token.data
+        # Sanitize Nightscout URL and token before saving
+        ns_url = form.ns_url.data or ''
+        ns_token = form.ns_token.data or ''
+        ns_url = ns_url.strip()
+        # remove trailing slashes
+        ns_url = ns_url.rstrip('/')
+        ns_token = ns_token.strip()
+        config[Cfg.ns_url] = ns_url
+        config[Cfg.ns_token] = ns_token
 
     config[Cfg.unit_mmol] = form.unit.data == unit_mmolperL
 
