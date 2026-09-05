@@ -21,13 +21,22 @@ class NightscoutReader():
         self.__logger = logger
 
     def set_config(self, config):
-        # Strip trailing slash from URL if present
-        ns_url = config[Cfg.ns_url]
+        # Strip whitespace and trailing slash from URL if present
+        ns_url = config.get(Cfg.ns_url, '')
+        if ns_url is None:
+            ns_url = ''
+        ns_url = ns_url.strip()
         if ns_url.endswith('/'):
             ns_url = ns_url[:-1]
         
         self.__config[Cfg.ns_url] = ns_url
-        self.__config[Cfg.ns_token] = config[Cfg.ns_token]
+
+        # Strip whitespace from token as well to avoid accidental spaces
+        ns_token = config.get(Cfg.ns_token, '')
+        if ns_token is None:
+            ns_token = ''
+        ns_token = ns_token.strip()
+        self.__config[Cfg.ns_token] = ns_token
         return True
 
     def login(self):
