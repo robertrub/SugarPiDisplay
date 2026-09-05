@@ -53,8 +53,48 @@
         })
     }
 
+    // Trim and sanitize Nightscout fields before submit
+    function sanitizeNightscoutFields() {
+      try {
+        var form = document.configForm;
+        // Only sanitize when Nightscout is selected
+        if (form.data_source.value === 'nightscout') {
+          // Trim whitespace from URL and token
+          if (form.ns_url && form.ns_url.value !== undefined) {
+            var url = form.ns_url.value.trim();
+            // remove trailing slashes
+            url = url.replace(/\/+$/,'');
+            form.ns_url.value = url;
+          }
+          if (form.ns_token && form.ns_token.value !== undefined) {
+            form.ns_token.value = form.ns_token.value.trim();
+          }
+
+          // Basic client-side validation: ensure fields are non-empty
+          if (!form.ns_url.value) {
+            alert('Nightscout URL cannot be empty');
+            return false;
+          }
+          if (!form.ns_token.value) {
+            alert('Nightscout Access Token cannot be empty');
+            return false;
+          }
+        }
+        return true;
+      } catch (e) {
+        // Fail-safe: if any JS error happens, allow submit so server-side validation can run
+        console.error('Sanitization error:', e);
+        return true;
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', setVisibility, false);
-    document.configForm.data_source.onchange = setVisibility
+    document.configForm.data_source.onchange = setVisibility;
+
+    // Attach the sanitization handler to the form submit
+    document.configForm.onsubmit = function (e) {
+      return sanitizeNightscoutFields();
+    };
   </script>
 </body>
 
