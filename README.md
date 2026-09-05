@@ -64,7 +64,6 @@ sudo systemctl start sugarpidisplay.service
 
 ## Documentation
 
-- **[Installation Guide](INSTALL.md)** - Detailed setup instructions
 - **[Hardware Setup](docs/hardware_setup.md)** - Physical assembly guide
 - **[Software Setup](docs/software_setup.md)** - Software configuration
 
