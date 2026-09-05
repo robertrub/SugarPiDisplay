@@ -3,7 +3,7 @@
 Display your CGM (Continuous Glucose Monitor) data on an e-Paper display anywhere in your home or office.
 
 This work have been done by @bassettb . I just updated the code to the new Linux distro and corrected some minor bugs (using a lot of CoPilot time ;)  )
-The code have NOT been widely tested and I only use Nightscout (never tested the Dexcom part). If you fin bugs or problems, please report.
+The code have NOT been widely tested and I only use Nightscout (never tested the Dexcom part). If you find bugs or problems, please report.
 
 ![SugarPiDisplay](https://raw.githubusercontent.com/bassettb/SugarPiDisplay/master/docs/image2.jpg)
 
@@ -33,7 +33,7 @@ This version has been updated for **Raspbian Bookworm** with:
 - ✅ Improved GPIO permission handling
 - ✅ Enhanced logging with journalctl
 - ✅ Network health monitoring
-- ✅ Minor settings setup page errors and shortcomings
+- ✅ Correction of minor errors and shortcomings of the settings setup page 
 
 ## Quick Start
 
